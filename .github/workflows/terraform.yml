@@ -100,11 +100,11 @@ jobs:
         run: exit 1
 
       - name: Encrypt plan
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.event_name == 'push'
         run: gpg --quiet --symmetric --cipher-algo AES256 --batch --yes --passphrase '${{ secrets.TF_PLAN_PASSPHRASE }}' --output tfplan.gpg tfplan
 
       - name: Upload plan
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.event_name == 'push'
         uses: actions/upload-artifact@v3
         with:
           name: tfplan
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: default
     needs: terraform-init-and-plan
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
