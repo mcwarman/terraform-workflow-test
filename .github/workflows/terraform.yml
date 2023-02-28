@@ -7,10 +7,9 @@ on:
   pull_request:
 
 jobs:
-  terraform:
-    name: "Terraform"
+  terraform-init-and-plan:
+    name: "Terraform Init and Plan"
     runs-on: ubuntu-latest
-    environment: default
     permissions:
       pull-requests: write
     steps:
@@ -99,6 +98,37 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
+
+      - name: Encrypt plan
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: gpg --quiet --symmetric --cipher-algo AES256 --batch --yes --passphrase '${{ secrets.TF_PLAN_PASSPHRASE }}' --output tfplan.gpg tfplan
+
+      - name: Upload plan
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: tplan
+          path: tplan.gpg
+          retention-days: 1
+
+  terraform-apply:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+    environment: default
+    needs: terraform-init-and-plan
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download Plan
+        uses: actions/download-artifact@v3
+        with:
+          name: tplan
+
+      - name: Decrypt plan
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: gpg --quiet --batch --yes --decrypt --passphrase '${{ secrets.TF_PLAN_PASSPHRASE }}' --output tfplan tfplan.gpg
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
