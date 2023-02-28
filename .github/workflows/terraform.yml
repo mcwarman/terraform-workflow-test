@@ -127,9 +127,7 @@ jobs:
           name: tfplan
 
       - name: Decrypt plan
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: gpg --quiet --batch --yes --decrypt --passphrase '${{ secrets.TF_PLAN_PASSPHRASE }}' --output tfplan tfplan.gpg
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -no-color -input=false tfplan
