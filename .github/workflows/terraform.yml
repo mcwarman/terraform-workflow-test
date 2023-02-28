@@ -124,7 +124,7 @@ jobs:
       - name: Download Plan
         uses: actions/download-artifact@v3
         with:
-          name: tplan
+          name: tfplan
 
       - name: Decrypt plan
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
