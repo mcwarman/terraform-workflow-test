@@ -12,6 +12,7 @@ terraform.tfstate.**
 
 tfplan
 tfplan.json
+tfplan.gpg
 plan.cache
 plan.json
 
