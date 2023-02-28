@@ -34,13 +34,39 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -input=false -out=tfplan
-        continue-on-error: true
+
+      - name: Update Git Step Summary
+        id: report
+        if: success() || failure()
+        env:
+          fmt_outcome: ${{ steps.fmt.outcome }}
+          init_outcome: ${{ steps.init.outcome }}
+          validate_outcome: ${{ steps.validate.outcome }}
+          plan_outcome: ${{ steps.plan.outcome }}
+          plan_stdout: ${{ steps.plan.outputs.stdout }}
+        run: |
+          {
+            printf "#### Terraform Format and Style :pencil2: \`%s\`\n\n" "${fmt_outcome}";
+            printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
+            printf "#### Terraform Validation :clipboard: \`%s\`\n\n" "${validate_outcome}";
+            printf "#### Terraform Plan :book: \`%s\`\n\n" "${plan_outcome}";
+            printf "<details><summary>Show Plan</summary>\n\n";
+            printf "\`\`\`\n%s\n\`\`\`\n\n" "${plan_stdout}";
+            printf "</details>\n\n";
+          } > "$GITHUB_STEP_SUMMARY"
+
+          eof=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          {
+            printf "markdown<<%s\n" "${eof}";
+            cat "$GITHUB_STEP_SUMMARY";
+            printf "%s\n" "${eof}";
+          } >> "$GITHUB_OUTPUT"
 
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        if: (success() || failure()) && github.event_name == 'pull_request'
         env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+          markdown: ${{ steps.report.outputs.markdown }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -55,28 +81,7 @@ jobs:
             })
 
             // 2. Prepare format of the comment
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            <details><summary>Validation Output</summary>
-
-            \`\`\`\n
-            ${{ steps.validate.outputs.stdout }}
-            \`\`\`
-
-            </details>
-
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-
-            <details><summary>Show Plan</summary>
-
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
-
-            </details>
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            const output = `${process.env.markdown}`;
 
             // 3. If we have a comment, update it, otherwise create a new one
             if (botComment) {
@@ -94,10 +99,6 @@ jobs:
                 body: output
               })
             }
-
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
 
       - name: Encrypt plan
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && github.event_name == 'push'
@@ -121,6 +122,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
       - name: Download Plan
         uses: actions/download-artifact@v3
         with:
@@ -131,3 +135,17 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -no-color -input=false tfplan
+
+      - name: Update Git Step Summary
+        id: report
+        if: success() || failure()
+        env:
+          apply_outcome: ${{ steps.fmt.outcome }}
+          apply_stdout: ${{ steps.plan.outputs.stdout }}
+        run: |
+          {
+            printf "#### Terraform Apply :rocket: \`%s\`\n\n" "${apply_outcome}";
+            printf "<details><summary>Show Outcome</summary>\n\n";
+            printf "\`\`\`\n%s\n\`\`\`\n\n" "${apply_stdout}";
+            printf "</details>\n\n";
+          } > "$GITHUB_STEP_SUMMARY"
