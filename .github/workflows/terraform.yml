@@ -134,14 +134,15 @@ jobs:
         run: gpg --quiet --batch --yes --decrypt --passphrase '${{ secrets.TF_PLAN_PASSPHRASE }}' --output tfplan tfplan.gpg
 
       - name: Terraform Apply
+        id: apply
         run: terraform apply -no-color -input=false tfplan
 
       - name: Update Git Step Summary
         id: report
         if: success() || failure()
         env:
-          apply_outcome: ${{ steps.fmt.outcome }}
-          apply_stdout: ${{ steps.plan.outputs.stdout }}
+          apply_outcome: ${{ steps.apply.outcome }}
+          apply_stdout: ${{ steps.apply.outputs.stdout }}
         run: |
           {
             printf "#### Terraform Apply :rocket: \`%s\`\n\n" "${apply_outcome}";
