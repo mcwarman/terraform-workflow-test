@@ -142,6 +142,10 @@ jobs:
       - name: Decrypt plan
         run: gpg --quiet --batch --yes --decrypt --passphrase '${{ secrets.TF_PLAN_PASSPHRASE }}' --output tfplan tfplan.gpg
 
+      - name: Terraform Init
+        id: init
+        run: terraform init -no-color -lockfile=readonly
+
       - name: Terraform Apply
         id: apply
         run: terraform apply -no-color -input=false tfplan
@@ -150,10 +154,12 @@ jobs:
         id: report
         if: success() || failure()
         env:
+          init_outcome: ${{ steps.init.outcome }}
           apply_outcome: ${{ steps.apply.outcome }}
           apply_stdout: ${{ steps.apply.outputs.stdout }}
         run: |
           {
+            printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
             printf "#### Terraform Apply :rocket: \`%s\`\n\n" "${apply_outcome}";
             printf "<details><summary>Show Outcome</summary>\n\n";
             printf "\`\`\`\n%s\n\`\`\`\n\n" "${apply_stdout}";
