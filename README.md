@@ -6,10 +6,13 @@
 | Name | Version |
 |------|---------|
 | terraform | ~> 1.3 |
+| random | ~> 3.4 |
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| random | 3.4.3 |
 
 ## Modules
 
@@ -17,7 +20,9 @@ No modules.
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [random_pet.name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 
 ## Inputs
 
@@ -27,5 +32,5 @@ No inputs.
 
 | Name | Description |
 |------|-------------|
-| hello\_world | Testing output |
+| message | Testing output |
 <!-- END_TF_DOCS -->
