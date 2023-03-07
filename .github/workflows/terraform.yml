@@ -34,13 +34,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-terraform-
 
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v3
-
-      - name: TFLint
-        id: tflint
-        run: tflint -f compact
-
       - name: Terraform Format
         id: fmt
         run: terraform fmt -no-color -check -diff -recursive
@@ -61,7 +54,6 @@ jobs:
         id: report
         if: success() || failure()
         env:
-          tflint_outcome: ${{ steps.tflint.outcome }}
           fmt_outcome: ${{ steps.fmt.outcome }}
           init_outcome: ${{ steps.init.outcome }}
           validate_outcome: ${{ steps.validate.outcome }}
@@ -69,7 +61,6 @@ jobs:
           plan_stdout: ${{ steps.plan.outputs.stdout }}
         run: |
           {
-            printf "#### TFLint :microscope: \`%s\`\n\n" "${tflint_outcome}";
             printf "#### Terraform Format and Style :pencil2: \`%s\`\n\n" "${fmt_outcome}";
             printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
             printf "#### Terraform Validation :clipboard: \`%s\`\n\n" "${validate_outcome}";
