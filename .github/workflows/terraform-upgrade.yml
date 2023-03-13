@@ -48,6 +48,8 @@ jobs:
         with:
           token: ${{ secrets.REPO_SCOPED_TOKEN }}
           title: "chore: Upgrade terraform providers"
+          body: |
+            Automated changes create by [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
           commit-message: "chore: Upgrade terraform providers"
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
