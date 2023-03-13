@@ -1,0 +1,52 @@
+name: "Terraform Upgrade"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform-upgrade:
+    name: "Terraform Upgrade"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure Terraform Provider Plugin Cache
+        run: |
+          plugin_cache_dir="$HOME/.terraform.d/plugin-cache"
+          printf 'plugin_cache_dir="%s"' "${plugin_cache_dir}" > ~/.terraformrc
+          mkdir --parents "${plugin_cache_dir}"
+
+      - name: Cache Terraform
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.terraform.d/plugin-cache
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
+
+      - name: Terraform Upgrade
+        id: upgrade
+        run: |
+          terraform init -no-color -upgrade -backend=false
+          terraform providers lock -platform=windows_amd64 -platform=linux_amd64 -platform=darwin_amd64
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          title: "chore: Upgrade terraform providers"
+          commit-message: "chore: Upgrade terraform providers"
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          labels: chore
+          add-paths: .terraform.lock.hcl
+          base: main
+          branch: terraform-providers-upgrade
+          delete-branch: true
