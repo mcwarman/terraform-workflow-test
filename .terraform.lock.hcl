@@ -2,8 +2,11 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.terraform.io/hashicorp/random" {
-  version = "3.4.3"
+  version     = "3.4.3"
+  constraints = "~> 3.4"
   hashes = [
+    "h1:hXUPrH8igYBhatzatkp80RCeeUJGu9lQFDyKemOlsTo=",
+    "h1:tL3katm68lX+4lAncjQA9AXL4GR/VM+RPwqYf4D2X8Q=",
     "h1:xZGZf18JjMS06pFa4NErzANI98qi59SEcBsOcS2P2yQ=",
     "zh:41c53ba47085d8261590990f8633c8906696fa0a3c4b384ff6a7ecbf84339752",
     "zh:59d98081c4475f2ad77d881c4412c5129c56214892f490adf11c7e7a5a47de9b",
