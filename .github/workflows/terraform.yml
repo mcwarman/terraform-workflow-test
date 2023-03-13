@@ -75,7 +75,7 @@ jobs:
 
           eof=$(head -c15 /dev/urandom | base64)
           {
-            printf "markdown<<%s\n" "${eof}";
+            printf "summary<<%s\n" "${eof}";
             cat "$GITHUB_STEP_SUMMARY";
             printf "%s\n" "${eof}";
           } >> "$GITHUB_OUTPUT"
@@ -84,39 +84,12 @@ jobs:
         uses: actions/github-script@v6
         if: (success() || failure()) && github.event_name == 'pull_request'
         env:
-          markdown: ${{ steps.report.outputs.markdown }}
+          title: Terraform Plan
+          summary: ${{ steps.report.outputs.summary }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // 1. Retrieve existing bot comments for the PR
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            })
-            const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
-            })
-
-            // 2. Prepare format of the comment
-            const output = `${process.env.markdown}`;
-
-            // 3. If we have a comment, update it, otherwise create a new one
-            if (botComment) {
-              github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: output
-              })
-            } else {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: output
-              })
-            }
+            const script = require('./.github/scripts/update_pull_request.js')
+            script({github, context})
 
       - name: Encrypt plan
         if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name)
