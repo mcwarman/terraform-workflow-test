@@ -69,7 +69,7 @@ jobs:
             printf "#### Terraform Validation :clipboard: \`%s\`\n\n" "${validate_outcome}";
             printf "#### Terraform Plan :book: \`%s\`\n\n" "${plan_outcome}";
             printf "<details><summary>Show Plan</summary>\n\n";
-            printf "\`\`\`\n%s\n\`\`\`\n\n" "${plan_stdout}";
+            printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${plan_stdout}";
             printf "</details>\n\n";
           } > "$GITHUB_STEP_SUMMARY"
 
@@ -162,6 +162,6 @@ jobs:
             printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
             printf "#### Terraform Apply :rocket: \`%s\`\n\n" "${apply_outcome}";
             printf "<details><summary>Show Outcome</summary>\n\n";
-            printf "\`\`\`\n%s\n\`\`\`\n\n" "${apply_stdout}";
+            printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${apply_stdout}";
             printf "</details>\n\n";
           } > "$GITHUB_STEP_SUMMARY"
