@@ -1,0 +1,27 @@
+name: "Terraform Docs"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform-docs:
+    name: "Terraform Docs"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GH_TOKEN_REPO_SCOPED }}
+
+      - name: Update terraform-docs
+        uses: terraform-docs/gh-actions@v1
+        with:
+          working-dir: .
+          config-file: .terraform-docs.yml
+          git-commit-message: "docs: Update terraform-docs"
+          git-push: "true"
