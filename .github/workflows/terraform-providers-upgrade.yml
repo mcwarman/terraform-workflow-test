@@ -1,16 +1,16 @@
-name: "Terraform Upgrade"
+name: "Terraform Providers Upgrade"
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - .github/workflows/terraform-upgrade.yml
+      - .github/workflows/terraform-providers-upgrade.yml
     branches:
       - main
 
 jobs:
-  terraform-upgrade:
-    name: "Terraform Upgrade"
+  terraform-providers-upgrade:
+    name: "Terraform Providers Upgrade"
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -46,14 +46,16 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.REPO_SCOPED_TOKEN }}
-          title: "chore: Upgrade terraform providers"
+          token: ${{ secrets.GH_TOKEN_REPO_SCOPED }}
+          title: "deps: Upgrade terraform providers"
           body: |
             Automated changes create by [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-          commit-message: "chore: Upgrade terraform providers"
+          commit-message: "deps: Upgrade terraform providers"
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          labels: chore
+          labels: |
+            dependencies
+            terraform
           add-paths: .terraform.lock.hcl
           base: main
           branch: terraform-providers-upgrade
