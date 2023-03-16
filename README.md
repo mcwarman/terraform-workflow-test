@@ -6,13 +6,13 @@
 | Name | Version |
 |------|---------|
 | terraform | ~> 1.3 |
-| random | ~> 3.4 |
+| random | 3.4.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| random | 3.4.3 |
+| random | 3.4.0 |
 
 ## Modules
 
@@ -22,7 +22,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [random_pet.name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
+| [random_pet.name](https://registry.terraform.io/providers/hashicorp/random/3.4.0/docs/resources/pet) | resource |
 
 ## Inputs
 
