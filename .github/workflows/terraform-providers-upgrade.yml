@@ -43,6 +43,12 @@ jobs:
           terraform init -no-color -upgrade -backend=false
           terraform providers lock -platform=windows_amd64 -platform=linux_amd64 -platform=darwin_amd64
 
+      - name: Update Terraform docs
+        uses: terraform-docs/gh-actions@v1
+        with:
+          working-dir: .
+          config-file: .terraform-docs.yml
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
