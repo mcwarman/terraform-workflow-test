@@ -5,7 +5,7 @@
 
 | Name | Version |
 |------|---------|
-| terraform | ~> 1.3 |
+| terraform | ~> 1.4 |
 | random | ~> 3.4 |
 
 ## Providers

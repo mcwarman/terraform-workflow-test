@@ -1,6 +1,13 @@
 terraform {
+  cloud {
+    organization = "mcwarman"
 
-  required_version = "~> 1.3"
+    workspaces {
+      name = "terraform-workflow-test"
+    }
+  }
+
+  required_version = "~> 1.4"
 
   required_providers {
     random = {
