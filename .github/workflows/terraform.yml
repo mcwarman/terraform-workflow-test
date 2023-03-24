@@ -59,7 +59,7 @@ jobs:
         run: |
           terraform plan -no-color -input=false -out=tfplan -detailed-exitcode
 
-      - name: Check if terraform has changes
+      - name: Check if plan has changes
         id: plan_outcome
         shell: bash
         run: |
@@ -211,3 +211,11 @@ jobs:
             printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${apply_stdout}";
             printf "</details>\n\n";
           } > "$GITHUB_STEP_SUMMARY"
+
+      - name: Check apply changes
+        env:
+          apply_outcome: ${{ steps.apply.outcome }}
+        run: |
+          match_string="^Apply complete! Resources: "
+          result=$(echo "${apply_outcome}" | grep "${match_string}" | sed "s/${match_string}//")
+          echo "::notice::terraform apply complete: ${result}"
