@@ -214,8 +214,8 @@ jobs:
 
       - name: Check apply changes
         env:
-          apply_outcome: ${{ steps.apply.outcome }}
+          apply_stdout: ${{ steps.apply.outputs.stdout }}
         run: |
           match_string="^Apply complete! Resources: "
-          result=$(echo "${apply_outcome}" | grep "${match_string}" | sed "s/${match_string}//")
+          result=$(echo "${apply_stdout}" | grep "${match_string}" | sed "s/${match_string}//")
           echo "::notice::terraform apply complete: ${result}"
