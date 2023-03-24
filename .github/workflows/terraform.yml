@@ -14,7 +14,10 @@ jobs:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
+    outputs:
+      has_changes: ${{ steps.plan_outcome.outputs.has_changes }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -51,7 +54,37 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color -input=false -out=tfplan
+        run: |
+          terraform plan -no-color -input=false -out=tfplan -detailed-exitcode
+
+      - name: Check if terraform has changes
+        id: plan_outcome
+        shell: bash
+        run: |
+          exitcode=${{ steps.plan.outputs.exitcode }}
+          if [ "$exitcode" == "0" ]; then
+            echo "has_changes=no" >> "$GITHUB_OUTPUT"
+            echo "::notice::terraform plan has no changes"
+          elif [ "$exitcode" == "2" ]; then
+            jq_plan_parser='
+              (
+                [.resource_changes[]?.change.actions?] | flatten
+              ) | {
+                "plan_outcome_add":(map(select(.=="create")) | length),
+                "plan_outcome_change":(map(select(.=="update")) | length),
+                "plan_outcome_destroy":(map(select(.=="delete")) | length)
+              } | to_entries | map("\(.key)=\(.value)") | @sh
+            '
+            eval "export $(${TERRAFORM_CLI_PATH}/terraform-bin show -json tfplan | jq -r "${jq_plan_parser}")"
+            {
+              printf "has_changes=yes\n";
+              printf "add=%s\n" "${plan_outcome_add}"
+              printf "change=%s\n" "${plan_outcome_change}"
+              printf "destroy=%s\n" "${plan_outcome_destroy}"
+            } >> "$GITHUB_OUTPUT"
+
+            echo "::notice::terraform plan has changes: ${plan_outcome_add} to add, ${plan_outcome_change} to change, ${plan_outcome_destroy} to destroy."
+          fi
 
       - name: Update Git Step Summary
         id: report
@@ -92,11 +125,17 @@ jobs:
             script({github, context})
 
       - name: Encrypt plan
-        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name)
+        if: |
+          github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+          contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name) &&
+          steps.plan_outcome.outputs.has_changes == 'yes'
         run: gpg --quiet --symmetric --cipher-algo AES256 --batch --yes --passphrase '${{ secrets.TF_PLAN_PASSPHRASE }}' --output tfplan.gpg tfplan
 
       - name: Upload plan
-        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name)
+        if: |
+          github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+          contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name) &&
+          steps.plan_outcome.outputs.has_changes == 'yes'
         uses: actions/upload-artifact@v3
         with:
           name: tfplan
@@ -108,7 +147,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: default
     needs: terraform-plan
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name)
+    if: |
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&
+      contains(fromJSON('["push", "workflow_dispatch"]'), github.event_name) &&
+      needs.terraform-plan.outputs.has_changes == 'yes'
     concurrency:
       group: ${{ github.ref }}
       cancel-in-progress: true
