@@ -93,6 +93,7 @@ jobs:
         if: success() || failure()
         env:
           fmt_outcome: ${{ steps.fmt.outcome }}
+          fmt_stdout: ${{ steps.fmt.outputs.stdout }}
           fmt_stderr: ${{ steps.fmt.outputs.stderr }}
           init_outcome: ${{ steps.init.outcome }}
           init_stderr: ${{ steps.init.outputs.stderr }}
@@ -104,9 +105,9 @@ jobs:
         run: |
           {
             printf "#### Terraform Format and Style :pencil2: \`%s\`\n\n" "${fmt_outcome}";
-            if [ -n "${fmt_stderr}" ]; then
+            if [ -n "${fmt_stdout}" ] || [ -n "${fmt_stderr}" ]; then
               printf "<details><summary>Format Error</summary>\n\n";
-              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${fmt_stderr}";
+              printf "\`\`\`terraform\n%s%s\n\`\`\`\n\n" "${fmt_stdout}" "${fmt_stderr}";
               printf "</details>\n\n";
             fi
             printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
