@@ -114,7 +114,7 @@ jobs:
             printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
             if [ "${init_outcome}" == "failure" ]; then
               printf "<details><summary>Initialization Error</summary>\n\n";
-              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${init_stdout}" "${init_stderr}";
+              printf "\`\`\`terraform\n%s%s\n\`\`\`\n\n" "${init_stdout}" "${init_stderr}";
               printf "</details>\n\n";
             fi
             printf "#### Terraform Validation :clipboard: \`%s\`\n\n" "${validate_outcome}";
