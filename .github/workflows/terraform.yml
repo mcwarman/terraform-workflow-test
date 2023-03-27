@@ -99,6 +99,7 @@ jobs:
           init_stdout: ${{ steps.init.outputs.stdout }}
           init_stderr: ${{ steps.init.outputs.stderr }}
           validate_outcome: ${{ steps.validate.outcome }}
+          validate_stdout: ${{ steps.validate.outputs.stdout }}
           validate_stderr: ${{ steps.validate.outputs.stderr }}
           plan_outcome: ${{ steps.plan.outcome }}
           plan_stdout: ${{ steps.plan.outputs.stdout }}
@@ -120,7 +121,7 @@ jobs:
             printf "#### Terraform Validation :clipboard: \`%s\`\n\n" "${validate_outcome}";
             if [ "${validate_outcome}" == "failure"  ]; then
               printf "<details><summary>Validation Error</summary>\n\n";
-              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${validate_stderr}";
+              printf "\`\`\`terraform\n%s%s\n\`\`\`\n\n" "${validate_stdout}" "${validate_stderr}";
               printf "</details>\n\n";
             fi
             printf "#### Terraform Plan :book: \`%s\`\n\n" "${plan_outcome}";
