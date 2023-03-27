@@ -93,19 +93,40 @@ jobs:
         if: success() || failure()
         env:
           fmt_outcome: ${{ steps.fmt.outcome }}
+          fmt_stderr: ${{ steps.fmt.outputs.stderr }}
           init_outcome: ${{ steps.init.outcome }}
+          init_stderr: ${{ steps.init.outputs.stderr }}
           validate_outcome: ${{ steps.validate.outcome }}
+          validate_stderr: ${{ steps.validate.outputs.stderr }}
           plan_outcome: ${{ steps.plan.outcome }}
           plan_stdout: ${{ steps.plan.outputs.stdout }}
+          plan_stderr: ${{ steps.plan.outputs.stderr }}
         run: |
           {
             printf "#### Terraform Format and Style :pencil2: \`%s\`\n\n" "${fmt_outcome}";
+            if [ -n "${fmt_stderr}" ]; then
+              printf "<details><summary>Format Error</summary>\n\n";
+              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${fmt_stderr}";
+              printf "</details>\n\n";
+            fi
             printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
+            if [ -n "${init_stderr}" ]; then
+              printf "<details><summary>Initialization Error</summary>\n\n";
+              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${init_stderr}";
+              printf "</details>\n\n";
+            fi
             printf "#### Terraform Validation :clipboard: \`%s\`\n\n" "${validate_outcome}";
+            if [ -n "${validate_stderr}" ]; then
+              printf "<details><summary>Validation Error</summary>\n\n";
+              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${validate_stderr}";
+              printf "</details>\n\n";
+            fi
             printf "#### Terraform Plan :book: \`%s\`\n\n" "${plan_outcome}";
-            printf "<details><summary>Show Plan</summary>\n\n";
-            printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${plan_stdout}";
-            printf "</details>\n\n";
+            if [ -n "${plan_stdout}" ] || [ -n "${plan_stderr}" ] ; then
+              printf "<details><summary>Show Plan</summary>\n\n";
+              printf "\`\`\`terraform\n%s%s\n\`\`\`\n\n" "${plan_stdout}" "${plan_stderr}";
+              printf "</details>\n\n";
+            fi
           } > "$GITHUB_STEP_SUMMARY"
 
           eof=$(head -c15 /dev/urandom | base64)
@@ -203,16 +224,18 @@ jobs:
           init_outcome: ${{ steps.init.outcome }}
           apply_outcome: ${{ steps.apply.outcome }}
           apply_stdout: ${{ steps.apply.outputs.stdout }}
+          apply_stderr: ${{ steps.apply.outputs.stderr }}
         run: |
           {
             printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
             printf "#### Terraform Apply :rocket: \`%s\`\n\n" "${apply_outcome}";
             printf "<details><summary>Show Outcome</summary>\n\n";
-            printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${apply_stdout}";
+            printf "\`\`\`terraform\n%s%s\n\`\`\`\n\n" "${apply_stdout}" "${apply_stderr}";
             printf "</details>\n\n";
           } > "$GITHUB_STEP_SUMMARY"
 
       - name: Check apply changes
+        if: steps.apply.outcome == 'success'
         env:
           apply_stdout: ${{ steps.apply.outputs.stdout }}
         run: |
