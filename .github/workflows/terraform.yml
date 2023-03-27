@@ -105,25 +105,25 @@ jobs:
         run: |
           {
             printf "#### Terraform Format and Style :pencil2: \`%s\`\n\n" "${fmt_outcome}";
-            if [ -n "${fmt_stdout}" ] || [ -n "${fmt_stderr}" ]; then
+            if [ "${fmt_outcome}" == "failure" ]; then
               printf "<details><summary>Format Error</summary>\n\n";
               printf "\`\`\`terraform\n%s%s\n\`\`\`\n\n" "${fmt_stdout}" "${fmt_stderr}";
               printf "</details>\n\n";
             fi
             printf "#### Terraform Initialization :gear: \`%s\`\n\n" "${init_outcome}";
-            if [ -n "${init_stderr}" ]; then
+            if [ "${init_outcome}" == "failure" ]; then
               printf "<details><summary>Initialization Error</summary>\n\n";
-              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${init_stderr}";
+              printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${init_stdout}" "${init_stderr}";
               printf "</details>\n\n";
             fi
             printf "#### Terraform Validation :clipboard: \`%s\`\n\n" "${validate_outcome}";
-            if [ -n "${validate_stderr}" ]; then
+            if [ "${validate_outcome}" == "failure"  ]; then
               printf "<details><summary>Validation Error</summary>\n\n";
               printf "\`\`\`terraform\n%s\n\`\`\`\n\n" "${validate_stderr}";
               printf "</details>\n\n";
             fi
             printf "#### Terraform Plan :book: \`%s\`\n\n" "${plan_outcome}";
-            if [ -n "${plan_stdout}" ] || [ -n "${plan_stderr}" ] ; then
+            if [ "${plan_outcome}" != "skipped" ] ; then
               printf "<details><summary>Show Plan</summary>\n\n";
               printf "\`\`\`terraform\n%s%s\n\`\`\`\n\n" "${plan_stdout}" "${plan_stderr}";
               printf "</details>\n\n";
