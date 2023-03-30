@@ -1,5 +1,7 @@
 # terraform-workflow-test
 
+This project is the inspiration and proving ground for my blog post [_Fixing Automating Terraform with GitHub Actions_](https://warman.io/blog/2023/03/fixing-automating-terraform-with-github-actions/).
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
