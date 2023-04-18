@@ -2,11 +2,6 @@ name: "Terraform Providers Upgrade"
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - .github/workflows/terraform-providers-upgrade.yml
-    branches:
-      - main
 
 jobs:
   terraform-providers-upgrade:
