@@ -14,7 +14,7 @@ This project is the inspiration and proving ground for my blog post [_Fixing Aut
 
 | Name | Version |
 |------|---------|
-| random | 3.4.3 |
+| random | 3.5.1 |
 
 ## Modules
 
