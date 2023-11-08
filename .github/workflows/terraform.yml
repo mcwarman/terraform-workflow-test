@@ -77,7 +77,7 @@ jobs:
                 "plan_outcome_destroy":(map(select(.=="delete")) | length)
               } | to_entries | map("\(.key)=\(.value)") | @sh
             '
-            eval "export $(${TERRAFORM_CLI_PATH}/terraform-bin show -json tfplan | jq -r "${jq_plan_parser}")"
+            eval "export $(terraform show -json tfplan | jq -r "${jq_plan_parser}")"
             {
               printf "has_changes=yes\n";
               printf "add=%s\n" "${plan_outcome_add}"
