@@ -140,7 +140,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Update Pull Request
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         if: (success() || failure()) && github.event_name == 'pull_request'
         env:
           title: Terraform Plan
