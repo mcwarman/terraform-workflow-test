@@ -45,7 +45,7 @@ jobs:
           config-file: .terraform-docs.yml
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GH_TOKEN_REPO_SCOPED }}
           title: "deps: Upgrade terraform providers"
