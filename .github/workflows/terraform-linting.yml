@@ -21,7 +21,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tflint-
 
-      - uses: terraform-linters/setup-tflint@v4
+      - uses: terraform-linters/setup-tflint@v6
         name: Setup TFLint
 
       - name: Show version
