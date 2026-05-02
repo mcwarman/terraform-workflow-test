@@ -205,7 +205,7 @@ jobs:
             ${{ runner.os }}-terraform-
 
       - name: Download Plan
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: tfplan
 
