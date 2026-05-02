@@ -6,15 +6,15 @@ This project is the inspiration and proving ground for my blog post [_Fixing Aut
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | terraform | ~> 1.4 |
 | random | ~> 3.4 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| random | 3.7.2 |
+| ---- | ------- |
+| random | 3.8.1 |
 
 ## Modules
 
@@ -23,7 +23,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [random_pet.name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 
 ## Inputs
@@ -33,6 +33,6 @@ No inputs.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | message | Testing output |
 <!-- END_TF_DOCS -->
